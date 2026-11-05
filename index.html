@@ -547,7 +547,7 @@ details.fallback button { display: block; width: 100%; text-align: left; margin-
   </div>
 </div>
 
-<script>(() => {
+<script>var PUBLIC_DECKS = ["真之蟲主杯 優勝（前しか向かねぇ）","真之蟲主杯 準優勝（優勝しようね,コントロール）","真之蟲主杯 第4位（かげろうの虫）","大型コントロール","白銀コントロール","ファランクス"];</script><script>(() => {
   // src/cardlib.js
   var S = (name, atk, extra = {}) => ({ name, atk, ...extra });
   var bug = (name, color, cost, hp, family, skills, traits = [], extra = {}) => ({ name, type: "bug", color, cost, hp, family, skills, traits, ...extra });
@@ -4798,6 +4798,9 @@ details.fallback button { display: block; width: 100%; text-align: left; margin-
   for (const [name, d] of Object.entries(DECKS)) {
     if (d.cards.length !== 20) throw new Error(`${name} \u304C20\u679A\u3067\u306F\u3042\u308A\u307E\u305B\u3093\uFF08${d.cards.length}\u679A\uFF09`);
   }
+  if (typeof PUBLIC_DECKS !== "undefined") {
+    for (const k of Object.keys(DECKS)) if (!PUBLIC_DECKS.includes(k)) delete DECKS[k];
+  }
 
   // src/ai/weights.js
   var INITIAL_WEIGHTS = {
@@ -6834,6 +6837,7 @@ details.fallback button { display: block; width: 100%; text-align: left; margin-
   var DECK_SIZE = 20;
   var MAX_SAME = 2;
   var STORE_KEY = "mushijingi.decks.v1";
+  var presetDecks = () => typeof PUBLIC_DECKS === "undefined" ? { ...PRESET.decks } : Object.fromEntries(Object.entries(PRESET.decks).filter(([k]) => PUBLIC_DECKS.includes(k)));
   var $3 = (id) => document.getElementById(id);
   var esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var rareOf = (id) => id.includes("_") ? id.split("_").pop() : "";
@@ -6858,12 +6862,12 @@ details.fallback button { display: block; width: 100%; text-align: left; margin-
     const rr = localStorage.getItem(REC_KEY);
     if (rr) records = JSON.parse(rr);
     if (raw == null && ra == null) {
-      memoryStore = { ...PRESET.decks };
+      memoryStore = presetDecks();
       aliases = { ...PRESET.aliases };
       fromPreset = true;
     }
   } catch {
-    memoryStore = { ...PRESET.decks };
+    memoryStore = presetDecks();
     aliases = { ...PRESET.aliases };
     fromPreset = true;
   }
